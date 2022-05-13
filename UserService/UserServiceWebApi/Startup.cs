@@ -45,6 +45,7 @@ namespace UserServiceWebApi
                     };
                 });
             services.AddSingleton<AuthService>();
+            services.AddScoped<UserService>();
             services.AddControllers();
         }
 
