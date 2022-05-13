@@ -6,7 +6,7 @@ namespace UserServiceConsole
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Console.WriteLine($"Console application ({Environment.Version.Build}) was started");
         }
     }
 }
