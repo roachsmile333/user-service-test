@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UserServiceWebApi.Helpers;
+using UserServiceWebApi.Service;
 
 namespace UserServiceWebApi
 {
@@ -31,6 +32,7 @@ namespace UserServiceWebApi
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options => {
                     options.RequireHttpsMetadata = false;
+                    options.SaveToken = true;
                     options.TokenValidationParameters = new TokenValidationParameters
                     {                        
                         ValidIssuer = Configuration.GetSection("JWTConfig").GetSection("Issuer").Value,                        
@@ -42,6 +44,7 @@ namespace UserServiceWebApi
                         ValidateIssuerSigningKey = true,
                     };
                 });
+            services.AddSingleton<AuthService>();
             services.AddControllers();
         }
 
@@ -57,6 +60,7 @@ namespace UserServiceWebApi
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
