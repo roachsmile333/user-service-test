@@ -9,9 +9,11 @@ namespace UserServiceWebApi.Service
     public class UserService
     {
         private readonly ILogger<UserService> _logger;
-        public UserService(ILogger<UserService> logger)
+        private readonly QueryPublisherService _publisherService;
+        public UserService(ILogger<UserService> logger, QueryPublisherService publisherService)
         {
             _logger = logger;
+            _publisherService = publisherService;
         }
 
         /// <summary>
@@ -22,6 +24,7 @@ namespace UserServiceWebApi.Service
         {
             try
             {
+                _publisherService.SendMessage($"User {username} was created successful");
                 return false;
             }
             catch (Exception ex)
@@ -39,6 +42,7 @@ namespace UserServiceWebApi.Service
         {
             try
             {
+                _publisherService.SendMessage($"GetAllUsersAsync message");
                 return null;
             }
             catch (Exception ex)

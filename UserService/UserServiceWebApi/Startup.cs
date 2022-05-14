@@ -44,8 +44,11 @@ namespace UserServiceWebApi
                         ValidateIssuerSigningKey = true,
                     };
                 });
+            #region Services
+            services.AddScoped<QueryPublisherService>();
             services.AddSingleton<AuthService>();
             services.AddScoped<UserService>();
+            #endregion
             services.AddControllers();
         }
 
