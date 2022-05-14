@@ -35,12 +35,12 @@ namespace UserServiceWebApi.Service
                 using (var connection = GetConnection())
                 using (var channel = connection.CreateModel())
                 {
-                    channel.QueueDeclare(queue: _configuration.GetSection("RabbitMQ").GetSection("HostName").Value,
+                    channel.QueueDeclare(queue: _configuration.GetSection("RabbitMQ").GetSection("Queue").Value,
                         exclusive: false, durable: false, autoDelete: false, arguments: null);
                     var body = Encoding.UTF8.GetBytes(username);
                     channel.BasicPublish(
                         exchange: "",
-                        routingKey: _configuration.GetSection("RabbitMQ").GetSection("HostName").Value,
+                        routingKey: _configuration.GetSection("RabbitMQ").GetSection("Queue").Value,
                         basicProperties: null,
                         body: body
                     );

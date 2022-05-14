@@ -32,14 +32,11 @@ namespace UserService.Console.Services
         {
             stoppingToken.ThrowIfCancellationRequested();
 
-            var consumer = new EventingBasicConsumer(_channel);
-            consumer.Received += (ch, ea) =>
+            var consumer = new AsyncEventingBasicConsumer(_channel);
+            consumer.Received += async (ch, ea) =>
             {
                 var content = Encoding.UTF8.GetString(ea.Body.ToArray());
-                _usersService.CreateUserAsync(content)
-                    .ConfigureAwait(false)
-                    .GetAwaiter()
-                    .GetResult();
+                await _usersService.CreateUserAsync(content);
                 _channel.BasicAck(ea.DeliveryTag, false);
             };
 
