@@ -24,8 +24,9 @@ namespace UserServiceWebApi.Service
         /// <returns>Token object</returns>
         public Token Authenticate(UserViewModel user)
         {
+            var jwtSection = _configuration.GetSection("JWTConfig");
             //searching target data in db
-            if(user == null)
+            if (user.UserName != jwtSection.GetSection("Username").Value || user.Password != jwtSection.GetSection("Password").Value)
                 return null;
 
             var claims = new List<Claim>
@@ -36,7 +37,6 @@ namespace UserServiceWebApi.Service
                 new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType,
                     ClaimsIdentity.DefaultRoleClaimType);
             var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtSection = _configuration.GetSection("JWTConfig");
             DateTime dateTimeNow = DateTime.Now;
             var tokenDescriptor = new JwtSecurityToken
             (
