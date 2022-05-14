@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using UserServiceWebApi.Models;
+using UserService.Models.User;
 using UserServiceWebApi.Service;
 
 namespace UserServiceWebApi.Controllers
@@ -11,8 +11,8 @@ namespace UserServiceWebApi.Controllers
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly UserService _userService;
-        public UserController(UserService userService)
+        private readonly UsersService _userService;
+        public UserController(UsersService userService)
         {
             _userService = userService;
         }
@@ -42,7 +42,7 @@ namespace UserServiceWebApi.Controllers
                 .GetResult();
             return Ok(result);
         }
-        private async Task<IEnumerable<User>> GetAllAsync() => await _userService.GetAllUsersAsync();
+        private async Task<IEnumerable<UserDto>> GetAllAsync() => await _userService.GetAllUsersAsync();
         #endregion
     }
 }

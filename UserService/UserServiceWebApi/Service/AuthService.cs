@@ -4,8 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using UserService.Models.User;
 using UserServiceWebApi.Helpers;
-using UserServiceWebApi.Models;
 
 namespace UserServiceWebApi.Service
 {
@@ -22,7 +22,7 @@ namespace UserServiceWebApi.Service
         /// </summary>
         /// <param name="user">User model object</param>
         /// <returns>Token object</returns>
-        public Token Authenticate(User user)
+        public Token Authenticate(UserViewModel user)
         {
             //searching target data in db
             if(user == null)
@@ -37,13 +37,14 @@ namespace UserServiceWebApi.Service
                     ClaimsIdentity.DefaultRoleClaimType);
             var tokenHandler = new JwtSecurityTokenHandler();
             var jwtSection = _configuration.GetSection("JWTConfig");
+            DateTime dateTimeNow = DateTime.Now;
             var tokenDescriptor = new JwtSecurityToken
             (
                 issuer: jwtSection.GetSection("Issuer").Value,
                 audience: jwtSection.GetSection("Audience").Value,
-                notBefore: DateTime.Now,
+                notBefore: dateTimeNow,
                 claims: claimsIdentity.Claims,
-                expires: DateTime.Now.Add(TimeSpan.FromMinutes(Double.Parse(jwtSection.GetSection("Lifetime").Value))),
+                expires: dateTimeNow.Add(TimeSpan.FromMinutes(Double.Parse(jwtSection.GetSection("Lifetime").Value))),
                 signingCredentials: new SigningCredentials(
                     key: AuthServiceHelper.GetKey(jwtSection.GetSection("Key").Value), 
                     algorithm: SecurityAlgorithms.HmacSha256Signature

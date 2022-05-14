@@ -1,4 +1,4 @@
-﻿namespace UserServiceWebApi.Models
+﻿namespace UserService.Models.User
 {
     public class Token
     {

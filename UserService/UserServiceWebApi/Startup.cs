@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using UserServiceWebApi.DbContexts;
 using UserServiceWebApi.Helpers;
 using UserServiceWebApi.Service;
 
@@ -38,9 +39,10 @@ namespace UserServiceWebApi
                     };
                 });
             #region Services
+            services.AddSingleton<MongoDbContext>();
             services.AddSingleton<QueryPublisherService>();
             services.AddSingleton<AuthService>();
-            services.AddScoped<UserService>();
+            services.AddScoped<UsersService>();
             #endregion
             services.AddControllers();
         }

@@ -1,39 +1,33 @@
-﻿using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Text;
+using System.IO;
+using UserServiceConsole.DbContexts;
+using UserService.Console.Service;
+using UserService.Console.Services;
 
 namespace UserServiceConsole
 {
     internal class Program
     {
+        public static IConfigurationRoot configuration;
         static void Main(string[] args)
         {
             Console.WriteLine($"Console application ({Environment.Version.ToString()}) was started\n{DateTime.UtcNow.ToShortTimeString()}");
+            Console.ReadLine();
+        }
+        private static void ConfigureServices(IServiceCollection serviceCollection)
+        {
 
-            //TODO: move consumer read block to background worker
-            try
-            {
-                var factory = new ConnectionFactory() { HostName = "localhost" };
-                using (var connection = factory.CreateConnection())
-                using (var channel = connection.CreateModel())
-                {
-                    channel.QueueDeclare(queue: "user-queue", exclusive: false, durable: false, autoDelete: false, arguments: null);
-                    var consumer = new EventingBasicConsumer(channel);
-                    consumer.Received += (sender, e) =>
-                    {
-                        var body = e.Body;
-                        var message = Encoding.UTF8.GetString(body.ToArray());
-                        Console.WriteLine($"{message}\n{DateTime.UtcNow.ToShortTimeString()}");
-                    };
-                    channel.BasicConsume(autoAck: true, queue: "user-queue", consumer: consumer);
-                    Console.ReadLine();
-                }                
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetParent(AppContext.BaseDirectory).FullName)
+                .AddJsonFile("appsettings.json", false)
+                .Build();
+
+            serviceCollection.AddSingleton<IConfigurationRoot>(configuration);
+            serviceCollection.AddSingleton<MongoDbContext>();
+            serviceCollection.AddScoped<UsersService>();
+            serviceCollection.AddHostedService<QueueService>();
         }
     }
 }

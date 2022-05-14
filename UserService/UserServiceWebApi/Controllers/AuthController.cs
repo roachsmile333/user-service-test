@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
-using UserServiceWebApi.Models;
 using UserServiceWebApi.Service;
+using UserService.Models.User;
 
 namespace UserServiceWebApi.Controllers
 {
@@ -24,7 +24,7 @@ namespace UserServiceWebApi.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Route("authenticate")]
-        public IActionResult Authenticate(User user)
+        public IActionResult Authenticate(UserViewModel user)
         {
             if (!ModelState.IsValid)
                 return Unauthorized();

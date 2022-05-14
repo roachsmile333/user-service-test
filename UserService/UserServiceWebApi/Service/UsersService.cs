@@ -1,19 +1,23 @@
 ﻿using Microsoft.Extensions.Logging;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using UserServiceWebApi.Models;
+using UserService.Models.User;
+using UserServiceWebApi.DbContexts;
 
 namespace UserServiceWebApi.Service
 {
-    public class UserService
+    public class UsersService
     {
-        private readonly ILogger<UserService> _logger;
+        private readonly ILogger<UsersService> _logger;
         private readonly QueryPublisherService _publisherService;
-        public UserService(ILogger<UserService> logger, QueryPublisherService publisherService)
+        private readonly MongoDbContext _dbContext;
+        public UsersService(ILogger<UsersService> logger, QueryPublisherService publisherService, MongoDbContext dbContext)
         {
             _logger = logger;
             _publisherService = publisherService;
+            _dbContext = dbContext;
         }
 
         /// <summary>
@@ -24,8 +28,13 @@ namespace UserServiceWebApi.Service
         {
             try
             {
-                _publisherService.SendMessage($"User {username} was created successful");
-                return false;
+                //we can use UpdateOne with upsert: true
+                //but we don't need to update current user if it exists
+                var currentUser = await _dbContext.userCollection.FindAsync(x => x.UserName == username);
+                if (currentUser.Any())
+                    return false;
+                _publisherService.SendCommand(username);
+                return true;
             }
             catch (Exception ex)
             {
@@ -38,12 +47,12 @@ namespace UserServiceWebApi.Service
         /// Asynchronously returns users from database
         /// </summary>
         /// <returns>Get result as list of users</returns>
-        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
         {
             try
             {
-                _publisherService.SendMessage($"GetAllUsersAsync message");
-                return null;
+                var result = await _dbContext.userCollection.Find(_ => true).ToListAsync();
+                return result;
             }
             catch (Exception ex)
             {

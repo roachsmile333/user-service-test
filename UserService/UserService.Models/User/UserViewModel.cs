@@ -1,6 +1,6 @@
-﻿namespace UserServiceWebApi.Models
+﻿namespace UserService.Models.User
 {
-    public class User
+    public class UserViewModel : IUser
     {
         public string UserName { get; set; }
         public string Password { get; set; }

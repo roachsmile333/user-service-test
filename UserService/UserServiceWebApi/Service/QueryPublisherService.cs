@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using System;
 using System.Text;
@@ -8,53 +9,47 @@ namespace UserServiceWebApi.Service
 {
     public class QueryPublisherService
     {
-        private readonly ILogger<UserService> _logger;
+        private readonly ILogger<UsersService> _logger;
         private IConnection _connection;
+        private readonly IConfiguration _configuration;
         private IConnection GetConnection() =>
             (_connection != null && _connection.IsOpen) ? 
             _connection : 
             _connection = new ConnectionFactory() { HostName = "localhost" }.CreateConnection();
-        public QueryPublisherService(ILogger<UserService> logger)
+        public QueryPublisherService(ILogger<UsersService> logger, IConfiguration configuration)
         {
+            _configuration = configuration;
             _logger = logger;
         }
 
         /// <summary>
-        /// Send message to queue by RabbitMQ
+        /// Send command to queue by RabbitMQ to store user 
         /// </summary>
-        /// <param name="obj">Object message what will be sended</param>
-        public void SendMessage(object obj)
+        /// <param name="username">String username what will be stored</param>
+        public void SendCommand(string username)
         {
             try
             {
-                var message = JsonSerializer.Serialize(obj);
-                SendMessage(message);
+                if (string.IsNullOrEmpty(username))
+                    return;
+                using (var connection = GetConnection())
+                using (var channel = connection.CreateModel())
+                {
+                    channel.QueueDeclare(queue: _configuration.GetSection("RabbitMQ").GetSection("HostName").Value,
+                        exclusive: false, durable: false, autoDelete: false, arguments: null);
+                    var body = Encoding.UTF8.GetBytes(username);
+                    channel.BasicPublish(
+                        exchange: "",
+                        routingKey: _configuration.GetSection("RabbitMQ").GetSection("HostName").Value,
+                        basicProperties: null,
+                        body: body
+                    );
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError($"QueryPublisherService.SendMessage (obj) occures error by {ex.Message}");
+                _logger.LogError($"SendCommand occurred error by next:\n {ex.Message}");
                 throw;
-            }
-        }
-        /// <summary>
-        /// Send message to queue by RabbitMQ
-        /// </summary>
-        /// <param name="message">String message what will be sended</param>
-        public void SendMessage(string message)
-        {
-            if (string.IsNullOrEmpty(message))
-                return;
-            using (var connection = GetConnection())
-            using (var channel = connection.CreateModel())
-            {
-                channel.QueueDeclare(queue: "user-queue", exclusive: false, durable: false, autoDelete: false, arguments: null);
-                var body = Encoding.UTF8.GetBytes(message);
-                channel.BasicPublish(
-                    exchange: "",
-                    routingKey: "user-queue",
-                    basicProperties: null,
-                    body: body
-                );
             }
         }
     }
