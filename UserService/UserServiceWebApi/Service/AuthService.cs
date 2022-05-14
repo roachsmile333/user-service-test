@@ -25,7 +25,6 @@ namespace UserServiceWebApi.Service
         public Token Authenticate(UserViewModel user)
         {
             var jwtSection = _configuration.GetSection("JWTConfig");
-            //searching target data in db
             if (user.UserName != jwtSection.GetSection("Username").Value || user.Password != jwtSection.GetSection("Password").Value)
                 return null;
 
