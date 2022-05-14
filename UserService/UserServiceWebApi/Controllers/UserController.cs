@@ -19,6 +19,7 @@ namespace UserServiceWebApi.Controllers
 
         #region Create
         [HttpPost]
+        [Route("create")]
         public IActionResult Create(string username)
         {
             if(string.IsNullOrEmpty(username))
@@ -33,6 +34,7 @@ namespace UserServiceWebApi.Controllers
 
         #region GetAll
         [HttpGet]
+        [Route("getall")]
         public IActionResult GetAll()
         {
             var result = GetAllAsync()

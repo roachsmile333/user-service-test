@@ -9,6 +9,11 @@ namespace UserServiceWebApi.Service
     public class QueryPublisherService
     {
         private readonly ILogger<UserService> _logger;
+        private IConnection _connection;
+        private IConnection GetConnection() =>
+            (_connection != null && _connection.IsOpen) ? 
+            _connection : 
+            _connection = new ConnectionFactory() { HostName = "localhost" }.CreateConnection();
         public QueryPublisherService(ILogger<UserService> logger)
         {
             _logger = logger;
@@ -39,11 +44,10 @@ namespace UserServiceWebApi.Service
         {
             if (string.IsNullOrEmpty(message))
                 return;
-            var factory = new ConnectionFactory() { HostName = "localhost" };
-            using (var connection = factory.CreateConnection())
+            using (var connection = GetConnection())
             using (var channel = connection.CreateModel())
             {
-                channel.QueueDeclare(queue: "user-queue");
+                channel.QueueDeclare(queue: "user-queue", exclusive: false, durable: false, autoDelete: false, arguments: null);
                 var body = Encoding.UTF8.GetBytes(message);
                 channel.BasicPublish(
                     exchange: "",

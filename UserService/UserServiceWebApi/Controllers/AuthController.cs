@@ -23,6 +23,7 @@ namespace UserServiceWebApi.Controllers
 
         [HttpPost]
         [AllowAnonymous]
+        [Route("authenticate")]
         public IActionResult Authenticate(User user)
         {
             if (!ModelState.IsValid)
