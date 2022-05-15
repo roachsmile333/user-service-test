@@ -1,5 +1,6 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System;
 using System.Diagnostics.CodeAnalysis;
 
 namespace UserService.Models.User
@@ -11,6 +12,6 @@ namespace UserService.Models.User
         [NotNull]
         public string UserId { get; set; }
         public string UserName { get; set; }
-        public BsonDateTime CreatedDate { get; set; }
+        public DateTime CreatedDate { get; set; }
     }
 }

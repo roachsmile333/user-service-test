@@ -32,16 +32,16 @@ namespace UserService.Console.Services
         {
             stoppingToken.ThrowIfCancellationRequested();
 
-            var consumer = new AsyncEventingBasicConsumer(_channel);
-            consumer.Received += async (ch, ea) =>
+            var consumer = new EventingBasicConsumer(_channel);
+            consumer.Received += (ch, ea) =>
             {
                 var content = Encoding.UTF8.GetString(ea.Body.ToArray());
-                await _usersService.CreateUserAsync(content);
+                _usersService.CreateUserAsync(content).GetAwaiter().GetResult();
                 _channel.BasicAck(ea.DeliveryTag, false);
+                System.Console.WriteLine($"Command was received with content:\n{content}");
             };
 
-            _channel.BasicConsume(_configuration.GetSection("RabbitMQ").GetSection("Queue").Value, false, consumer);
-
+            _channel.BasicConsume(_configuration.GetSection("RabbitMQ").GetSection("Queue").Value, true, consumer);
             return Task.CompletedTask;
         }
 

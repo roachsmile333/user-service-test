@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -51,7 +52,7 @@ namespace UserServiceWebApi.Service
         {
             try
             {
-                var result = await _dbContext.userCollection.Find(_ => true).ToListAsync();
+                var result = await _dbContext.userCollection.Find(new BsonDocument()).ToListAsync();
                 return result;
             }
             catch (Exception ex)
